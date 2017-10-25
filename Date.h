@@ -16,8 +16,8 @@ private:
 
 public:
 
-    Date(int givenYear = 1970, int givenMonth = 1, int givenDay = 1);
-    Date(Date const &toCopy);
+    Date(int givenYear = 1970, int givenMonth = 1, int givenDay = 1);   // while we are checking if the numbers are good, we should do sth if they are bad
+    //Date(Date const &toCopy);
 
     ~Date() = default;
 
@@ -27,11 +27,13 @@ public:
     Date operator-(int howManyDays) const;
     Date operator+(int howManyDays) const;
 
-    Date &operator+=(int howManyDays);
-    Date &operator-=(int howManyDays);
+    Date &operator+=(int howManyDays);                          //isn't it would be the void function?
+   // Date &operator-=(int howManyDays);
+   void operator=(const Date& t);
 
-    bool operator!=(const Date &t) const;
-    bool operator==(const Date &t) const;
+
+   // bool operator!=(const Date &t) const;
+   // bool operator==(const Date &t) const;
 
     friend std::ostream & operator<<(std::ostream & osObject, const Date & dateObject);
 

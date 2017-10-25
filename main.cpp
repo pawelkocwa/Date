@@ -5,11 +5,12 @@
 
 int main() {
 
-    std::cout << "Hello, World!" << std::endl;
+    Date data1(2000,10,5);
+    Date data2(2007,9,10);
 
-    Date data1(1991,10,5);
+    Date data3 = (data2 + 100);
+    std::cout<<data3;
 
-    std::cout<<data1;
 
     return 0;
 }

@@ -11,38 +11,81 @@ const int daysInMonth [12] {31, 28, 31, 30, 31,30, 31, 31, 30, 31, 30, 31};
 
 ////////////////////////////////////    CONSTRUCTORS            /////////////////////////////////////////
 
-Date::Date(int givenYear, int givenMounth, int givenDay) {
+Date::Date(int givenYear, int givenMonth, int givenDay) {
 
-    if(givenYear >= 1970){
+    if(givenYear >= 1970)
+        year = givenYear;
+
+    else{
+        std::cout<<"You have given a bad year!"<<std::endl;
+        std::cout<<"Try again if you wish :) "<<std::endl;
+
+        while(givenYear < 1970){
+
+            std::cin>>givenYear;
+
+            if(givenYear < 1970){
+                std::cout<<"Still wrong! :/ "<<std::endl;
+                std::cout<<std::endl;
+            }
+
+        }
+        std::cout<<"Good!"<<std::endl;
         year = givenYear;
     }
+
+    if(givenMonth >= 1 && givenMonth <=12)
+        month = givenMonth;
+
     else{
-        std::cout<<"You have given a bad year"<<std::endl;            // nie wiem czy spoko xd
+        std::cout<<"You have given a bad month! "<<std::endl;
+        std::cout<<"Try again if you wish :) "<<std::endl;
+
+        while(givenMonth < 1 || givenMonth > 12){
+
+            std::cin>>givenMonth;
+
+            if(givenMonth < 1 || givenMonth > 12)
+                std::cout<<"Still wrong! :/ "<<std::endl;
+
+            std::cout<<std::endl;
+
+        }
+        std::cout<<"Good!"<<std::endl;
+        month = givenMonth;
     }
 
-    if(givenMounth >= 0 && givenMounth <=12){
-        month = givenMounth;
-    }
-    else
-        std::cout<<"You have given a bad month "<<std::endl;
-
-    if(givenDay >= 0 && givenDay <= daysInMonth[givenMounth - 1]){
+    if(givenDay >= 1 && givenDay <= daysInMonth[givenMonth - 1])
         day = givenDay;
-    }
+
     else{
-        std::cout<<"You have given a bad numbers of days "<<std::endl;
+        std::cout<<"You have given a bad numbers of days! "<<std::endl;
+        std::cout<<"Try again if you wish :) "<<std::endl;
+
+        while(givenDay < 1 || givenDay > daysInMonth[month-1]){
+
+            std::cin>>givenDay;
+
+            if(givenDay < 1 || givenDay > daysInMonth[month-1])
+                std::cout<<"Still wrong! :/ "<<std::endl;
+
+            std::cout<<std::endl;
+
+        }
+
+        day = givenDay;
+        std::cout<<"Good!"<<std::endl;
     }
+}               // tested and it's good
 
-
-
-}
-
+/*                                                                          // pointless xd
 Date::Date(Date const &toCopy) {
 
     this->year = toCopy.year;
     this->month = toCopy.month;
     this->day = toCopy.day;
 }
+*/
 
 
 ////////////////////////////////////    OPERATOR OVERLOADING    /////////////////////////////////////////
@@ -64,15 +107,17 @@ int Date::operator-(const Date &t) const {
     difference = daysInFirst - daysInT;
 
     return difference;
-}                               // probably it's okey, CHECK!!!
+}                               // tested and it's good
 
 Date Date::operator-(int howManyDays) const {
 
-    int year, month, day;
+    int year, month, day, i = 0;
+
+    // count how many days
 
     int daysInFirst = this->day, difference = 0;
 
-    for(int i = 0; i <= this->month ;i++){
+    for(int i = 0; i <= this->month - 1 ;i++){
         daysInFirst += daysInMonth[i];
     }
 
@@ -80,20 +125,32 @@ Date Date::operator-(int howManyDays) const {
 
     difference = daysInFirst - howManyDays;
 
+    // creating new date
+
     year = difference / 365;
 
-    difference = difference - year * 365;                                   //now in difference left just 
+    difference = difference - year * 365;                                   //now in difference left just days without years
+
+    while( difference <= daysInMonth[i] ){
+        difference -= daysInMonth[i];
+        i++;
+    }
+
+    month = i + 1;
+
+    day = difference;
 
 
 
 
-    return ;
-}
+
+    return Date(year,month,day);
+}                           // you've to check that!!!
 
 Date Date::operator+(int howManyDays) const {
 
     Date newDate;
-    short newMonth = month, newYear = year, newDay = day;
+    int newMonth = month, newYear = year, newDay = day;
 
     newDay += howManyDays;
 
@@ -102,31 +159,44 @@ Date Date::operator+(int howManyDays) const {
         newDate.month = this->month;
         newDate.day = this->day;
 
-        return newDate;
     }
+    else {
+        newDay -= howManyDays;
+        howManyDays += newDay;
+        howManyDays += newYear * 365;
+
+        for(int i = 0; i <= month - 2; i++) {
+            howManyDays += daysInMonth[i];
+        }
 
 
-    while( newDay <= daysInMonth[(newMonth-1) % 12] ){
 
-        // check how many days in the month
+        /*
+        while( newDay > daysInMonth[(newMonth-1) % 12] ){
 
-        if( newDay > daysInMonth[(newMonth-1) % 12]) {
+            // check how many days in the month
 
-            newDay -= daysInMonth[ (newMonth-1) % 12 ];
-            newMonth++;
+            if( newDay > daysInMonth[(newMonth-1) % 12]) {
+
+                newDay -= daysInMonth[ (newMonth-1) % 12 ];
+                newMonth++;
+
+                if(newMonth / 12 == 1){
+                    newYear += newMonth / 12;
+                    newMonth = 1;
+                }
+
+            }
 
             if(newMonth / 12 == 1){
                 newYear += newMonth / 12;
                 newMonth = 1;
             }
 
-        }
-
-        if(newMonth / 12 == 1){
-            newYear += newMonth / 12;
-            newMonth = 1;
+        */
         }
     }
+
 
     newDate.year = newYear;
     newDate.month = newMonth;
@@ -144,7 +214,7 @@ Date &Date::operator+=(int howManyDays) {
 
     if( newDay <= daysInMonth[this->month - 1] ){            //check if there is need to divide the days
 
-        return;
+        (this->day = newDay);
     }
 
 
@@ -169,14 +239,22 @@ Date &Date::operator+=(int howManyDays) {
             newMonth = 1;
         }
     }
+    this->year = newYear;
+    this->month = newMonth;
+    this->day = newDay;
 
-    newDate.year = newYear;
-    newDate.month = newMonth;
-    newDate.day = newDay;
-
-    return newDate;
 }
 
+void Date::operator=(const Date &t) {
+
+    this->year = t.year;
+    this->month = t.month;
+    this->day = t.day;
+}
+
+
+
+/*
 Date &Date::operator-=(int howManyDays) {
     return ;
 }
@@ -188,9 +266,15 @@ bool Date::operator!=(const Date &t) const {
 bool Date::operator==(const Date &t) const {
     return false;
 }
+*/
+
+
+////////////////////////////////////        OTHERS      /////////////////////////////////////////
 
 std::ostream &operator<<(std::ostream &osObject, const Date &dateObject) {
     osObject<<dateObject.year<<"-"<<dateObject.month<<"-"<<dateObject.day<<std::endl;
     return osObject;
 }
+
+
 
