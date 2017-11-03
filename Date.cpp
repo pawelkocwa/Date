@@ -6,8 +6,7 @@
 
 
 const int daysInMonth [12] {31, 28, 31, 30, 31,30, 31, 31, 30, 31, 30, 31};
-
-
+int sumDaysInDate(int year, int month, int day);
 
 ////////////////////////////////////    CONSTRUCTORS            /////////////////////////////////////////
 
@@ -107,23 +106,13 @@ int Date::operator-(const Date &t) const {
     difference = daysInFirst - daysInT;
 
     return difference;
-}                               // tested and it's good
+}                                  // tested and it's good
 
 Date Date::operator-(int howManyDays) const {
 
     int year, month, day, i = 0;
 
-    // count how many days
-
-    int daysInFirst = this->day, difference = 0;
-
-    for(int i = 0; i <= this->month - 1 ;i++){
-        daysInFirst += daysInMonth[i];
-    }
-
-    daysInFirst += this->year * 365;
-
-    difference = daysInFirst - howManyDays;
+    int difference = sumDaysInDate(this->year,this->month,this->day) - howManyDays;
 
     // creating new date
 
@@ -131,7 +120,8 @@ Date Date::operator-(int howManyDays) const {
 
     difference = difference - year * 365;                                   //now in difference left just days without years
 
-    while( difference <= daysInMonth[i] ){
+
+    while( difference > daysInMonth[i] ){
         difference -= daysInMonth[i];
         i++;
     }
@@ -141,109 +131,146 @@ Date Date::operator-(int howManyDays) const {
     day = difference;
 
 
+    if( 0 == difference )
+    {
+        year --;
+        month = 12;
+        day = daysInMonth[month - 1];
+    }
 
-
+    //std::cout<<year<<" "<<month<<" "<<day<<std::endl;
 
     return Date(year,month,day);
-}                           // you've to check that!!!
+}                               // tested and it's good
 
 Date Date::operator+(int howManyDays) const {
 
-    Date newDate;
-    int newMonth = month, newYear = year, newDay = day;
+    int dayAfterSum = this->day, newMonth = this->month - 1, newYear = this-> year;
 
-    newDay += howManyDays;
+    dayAfterSum += howManyDays;
 
-    if( newDay <= daysInMonth[this->month - 1] ){            //check if there is need to divide the days
-        newDate.year = this->year;
-        newDate.month = this->month;
-        newDate.day = this->day;
+    while (dayAfterSum > daysInMonth[newMonth])
+    {
+        dayAfterSum -= daysInMonth[newMonth];
+        newMonth++;
 
-    }
-    else {
-        newDay -= howManyDays;
-        howManyDays += newDay;
-        howManyDays += newYear * 365;
-
-        for(int i = 0; i <= month - 2; i++) {
-            howManyDays += daysInMonth[i];
-        }
-
-
-
-        /*
-        while( newDay > daysInMonth[(newMonth-1) % 12] ){
-
-            // check how many days in the month
-
-            if( newDay > daysInMonth[(newMonth-1) % 12]) {
-
-                newDay -= daysInMonth[ (newMonth-1) % 12 ];
-                newMonth++;
-
-                if(newMonth / 12 == 1){
-                    newYear += newMonth / 12;
-                    newMonth = 1;
-                }
-
-            }
-
-            if(newMonth / 12 == 1){
-                newYear += newMonth / 12;
-                newMonth = 1;
-            }
-
-        */
+        if( newMonth == 12 )
+        {
+            newYear ++;
+            newMonth = 0;
         }
     }
 
-
-    newDate.year = newYear;
-    newDate.month = newMonth;
-    newDate.day = newDay;
-
-    return newDate;
-}                           // probably it's okey, CHECK!!!
+    return Date(newYear, newMonth + 1, dayAfterSum);
+}                               // tested and it's good
 
 Date &Date::operator+=(int howManyDays) {
 
-
-    int newMonth = month, newYear = year, newDay = day;
-
-    newDay += howManyDays;
-
-    if( newDay <= daysInMonth[this->month - 1] ){            //check if there is need to divide the days
-
-        (this->day = newDay);
-    }
+    int dayAfterSum = this->day;
+    int newMonth = this->month;
+    int newYear = this->year;
 
 
-    while( newDay <= daysInMonth[(newMonth-1) % 12] ){
+    dayAfterSum += howManyDays;
 
-        // check how many days in the month
+    while (dayAfterSum > daysInMonth[newMonth-1])
+    {
+        dayAfterSum -= daysInMonth[newMonth-1];
+        newMonth++;
 
-        if( newDay > daysInMonth[(newMonth-1) % 12]) {
-
-            newDay -= daysInMonth[ (newMonth-1) % 12 ];
-            newMonth++;
-
-            if(newMonth / 12 == 1){
-                newYear += newMonth / 12;
-                newMonth = 1;
-            }
-
-        }
-
-        if(newMonth / 12 == 1){
-            newYear += newMonth / 12;
+        if( newMonth == 13 )
+        {
+            newYear ++;
             newMonth = 1;
         }
     }
-    this->year = newYear;
-    this->month = newMonth;
-    this->day = newDay;
 
-}
+        this->year = newYear;
+        this->month = newMonth;
+        this->day = dayAfterSum;
+
+    return *this;
+}                                   // tested and it's good
+
+Date &Date::operator-=(int howManyDays) {
+/*
+    int difference, z, newYear, newMonth;
+    difference = z = 0;
+
+    for (int i = 0; i < this->month - 1 ; i++) {
+        difference += daysInMonth[i];
+    }
+
+    difference += this->year * 365;
+
+    difference += this->day;
+
+    difference -= howManyDays;
+
+    newYear = difference / 365;                                          //year
+
+    difference -= newYear * 356;
+
+    while ( difference > daysInMonth[z] ){
+
+        difference -= daysInMonth[z];
+        z++;
+    }
+
+
+    //if(0 == difference){
+    //    this->year --;
+    //    this->month = 11;
+    //    this->day = daysInMonth[month];
+    //}
+
+
+    newMonth = z + 1;
+
+    this->day = difference;
+    this->month = newMonth;
+    this->year = newYear;
+
+    return *this;
+*/
+    int year, month, day, i = 0;
+
+    int difference = sumDaysInDate(this->year,this->month,this->day) - howManyDays;
+
+    // creating new date
+
+    year = difference / 365;
+
+    difference = difference - year * 365;                                   //now in difference left just days without years
+
+
+    while( difference > daysInMonth[i] ){
+        difference -= daysInMonth[i];
+        i++;
+    }
+
+    month = i + 1;
+
+    day = difference;
+
+
+    if( 0 == difference )
+    {
+        year --;
+        month = 12;
+        day = daysInMonth[month - 1];
+    }
+
+    //std::cout<<year<<" "<<month<<" "<<day<<std::endl;
+
+    this->day = day;
+    this->month = month;
+    this->year = year;
+
+    return *this;
+
+
+}                                   // tested and it's good
 
 void Date::operator=(const Date &t) {
 
@@ -252,29 +279,35 @@ void Date::operator=(const Date &t) {
     this->day = t.day;
 }
 
-
-
-/*
-Date &Date::operator-=(int howManyDays) {
-    return ;
-}
-
 bool Date::operator!=(const Date &t) const {
-    return false;
-}
+    return (this->day != t.day) || (this->month != t.month) || (this->year != t.year);
+}                                // tested and it's good
 
 bool Date::operator==(const Date &t) const {
-    return false;
-}
-*/
+    return (this->day == t.day) && (this->month == t.month) && (this->year == t.year);
+}                                // tested and it's good
+
 
 
 ////////////////////////////////////        OTHERS      /////////////////////////////////////////
 
 std::ostream &operator<<(std::ostream &osObject, const Date &dateObject) {
-    osObject<<dateObject.year<<"-"<<dateObject.month<<"-"<<dateObject.day<<std::endl;
-    return osObject;
+        osObject<<dateObject.year<<"-"<<dateObject.month<<"-"<<dateObject.day<<std::endl;
+        return osObject;
+    }  // tested and it's good
+
+
+int sumDaysInDate(int year, int month, int days) {
+
+    int sum=0;
+
+    sum = (year * 365);
+
+    sum += days;
+
+    for (int i = 0; i < month - 1 ; ++i) {
+        sum += daysInMonth[i];
+    }
+
+    return sum;
 }
-
-
-

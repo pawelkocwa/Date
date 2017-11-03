@@ -26,14 +26,12 @@ public:
 
     Date operator-(int howManyDays) const;
     Date operator+(int howManyDays) const;
+    Date &operator+=(int howManyDays);
+    Date &operator-=(int howManyDays);
+    void operator=(const Date& t);
 
-    Date &operator+=(int howManyDays);                          //isn't it would be the void function?
-   // Date &operator-=(int howManyDays);
-   void operator=(const Date& t);
-
-
-   // bool operator!=(const Date &t) const;
-   // bool operator==(const Date &t) const;
+    bool operator!=(const Date &t) const;
+    bool operator==(const Date &t) const;
 
     friend std::ostream & operator<<(std::ostream & osObject, const Date & dateObject);
 
